@@ -8,6 +8,7 @@ state = {
 	updatetime: 5000, 
 	latest_time: 0,
 	updatelist: {ffview: true},
+	latest_uri: undefined
 	timeinterval: 5000
 };
 
@@ -111,6 +112,7 @@ cmds = {
 				state.latest_time = data.timestamp;
 				if (state.updatelist['ffview']){ //in pause mode, change the notification box without plotting.
 					var url = data.uri; //should be data.uri not data.url
+					latest_uri = data.uri;
 					state.lsstviewers['ffview'].plot({url: url, Title: id, ZoomType: 'TO_WIDTH'});
 					cmds.clear_box(state, ['', state.boxes]); // clear all boxes
 					cmds.hide_boundary(state, '', ['ffview']); // clear the red boundary
@@ -328,8 +330,16 @@ cmds = {
 			third_line.append('span').text('region: ');
 			var region_name = third_line.append('span').attr('id', 'readout-region-' + name);
 
-			var height = 2000;
-			var width = 502;
+            // get the size of an image
+			var height = 0;
+			var width = 0;
+
+			var img = new Image();
+			img.onload = function(){
+				var height = img.height;
+				var width = img.width;
+			}
+			img.src = latest_uri;
 
 			var getRegion = function(pt) {
 	    		var x = Math.floor(pt.x / width);
