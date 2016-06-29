@@ -9,6 +9,7 @@ state = {
 	latest_time: 0,
 	updatelist: {ffview: true},
 	latest_uri: undefined
+	updated_uri: undefined
 	timeinterval: 5000
 };
 
@@ -108,11 +109,12 @@ cmds = {
 	update_viewer: function(state, cmd_args){
 		var id = cmd_args[1];
 		firefly.getJsonFromTask("python", "fetch_latest", null).then(function(data){
+			state.latest_uri = data.uri; // cache the latest image, getting ready to display
 			if (data.timestamp > state.latest_time) { // new image
 				state.latest_time = data.timestamp;
 				if (state.updatelist['ffview']){ //in pause mode, change the notification box without plotting.
 					var url = data.uri; //should be data.uri not data.url
-					latest_uri = data.uri;
+					state.updated_uri = data.uri;
 					state.lsstviewers['ffview'].plot({url: url, Title: id, ZoomType: 'TO_WIDTH'});
 					cmds.clear_box(state, ['', state.boxes]); // clear all boxes
 					cmds.hide_boundary(state, '', ['ffview']); // clear the red boundary
@@ -130,6 +132,8 @@ cmds = {
 		var id = cmd_args[1];
 		var elem = document.getElementById("pause-resume"); 
 		state.updatelist['ffview'] = true;
+		// plot the latest image
+		state.lsstviewers['ffview'].plot({url: state.latest_uri, Title: id, ZoomType: 'TO_WIDTH'});
 		elem.value = "pause";
 		//d3.select('#pause-resume').text('pause');
 	},
@@ -339,7 +343,7 @@ cmds = {
 				var height = img.height;
 				var width = img.width;
 			}
-			img.src = latest_uri;
+			img.src = state.updated_uri;
 
 			var getRegion = function(pt) {
 	    		var x = Math.floor(pt.x / width);
