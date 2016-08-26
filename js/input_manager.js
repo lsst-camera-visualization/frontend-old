@@ -13,12 +13,21 @@ LSST.KeyCommand = function(keyCode, cmd, elements = [document], modifiers = []) 
 		// Are we enabled?
 		// If not, don't do any key press processing
 		if (!bEnabled)
-			return;	
+			return;
 
 		var keyPress = event.keyCode || event.which;
 		if (keyCode == keyPress) {
+			// Prevent default key code use
+			event.preventDefault();
+			
 			// Check for modifiers
-		
+			if ((modifiers.indexOf('shift') != -1) && !event.shiftKey)
+				return;
+			if ((modifiers.indexOf('ctrl') != -1) && !event.ctrlKey)
+				return;
+			if ((modifiers.indexOf('alt') != -1) && !event.altKey)
+				return;
+			
 			// Call command
 			cmd(event);
 		}
