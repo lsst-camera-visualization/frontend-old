@@ -106,6 +106,8 @@ function Viewer(id) {
 	this.header = null;
 	this.show_boundary = false;
 	this.overscan = false;
+	
+	var cursorCoords;
 
 	// Call uv_update every uv.freq milliseconds
 	this.uv.timer_id =
@@ -115,6 +117,17 @@ function Viewer(id) {
 			},
 			this.uv.freq
 		);
+	
+	this.getCursorCoords = function() {
+		var c = cursorCoords;
+		c.x = Math.trunc(c.x);
+		c.y = Math.trunc(c.y);
+		
+		return c;
+	}
+	this.readout.register('READ_MOUSE', function(data) {
+		cursorCoords = data.ipt;
+	});
 }
 
 

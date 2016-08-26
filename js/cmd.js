@@ -320,6 +320,8 @@ cmds = {
 			LSST.state.viewers.add(viewerID, viewer);
 
 			cmds.show_viewer( { 'viewer_id' : viewerID } );
+			
+			inputAddViewer(viewer);
 		}
 		else {
 			LSST.state.term.echo('A viewer with the name \'' + viewerID + '\' already exist!');
