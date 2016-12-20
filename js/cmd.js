@@ -54,6 +54,11 @@ jQuery(document).ready(function() {
 			'description' : 'Deletes an existing information box.',
 			'doc_link' : docLink + '#delete_box'
 		},
+		'get_noise viewer_id box_id' : {
+			'callback' : cmds.get_noise,
+			'description' : 'Get the noise of an image.',
+			'doc_link' : docLink + '#get_noise'
+		},
 		'hide_box box_id' : {
 			'callback' : cmds.hide_box,
 			'description' : 'Hides an information box.',
@@ -343,6 +348,43 @@ cmds = {
 		else {
 			LSST.state.term.lsst_term('echo', 'A box with the name \'' + boxID + '\' does not exist!');
 		}
+	},
+
+	get_noise: function(cmd_args) {
+		var viewerID = cmd_args['viewer_id'];
+		var boxID = cmd_args['box_id'];
+		var boxExists = LSST.state.boxes.exists(boxID);
+		var viewerExists = LSST.state.viewers.exists(viewerID);
+		if (boxExists && viewerExists) {
+			var viewer = LSST.state.viewers.get(viewerID);
+			var box = LSST.state.boxes.get(boxID);
+			// Clear the box of any existing information
+			cmds.clear_box( { 'box_id' : boxID } );
+			var params = viewer.original_image_url
+			executeBackendFunction('noise', viewer, params,
+				function(data) {
+					boxText = [
+						'Viewer: ' + viewerID,
+						new BoxText('Noise:', data)
+					];
+					box.setText(boxText);
+				},
+
+				function(data) {
+					// Called when there was a problem with the promise function
+					boxText = [
+						'There was a problem with executing the get_noise function',
+						'\n',
+						'Please make sure all parameters were typed in correctly',
+						new BoxText('Error', data, false)
+					];
+
+					box.setText(boxText);
+				}
+			);
+
+		}
+
 	},
 
 	hide_boundary: function(cmd_args) {
